@@ -6,8 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.domain.Member;
+import study.datajpa.domain.Team;
+import study.datajpa.dto.MemberDto;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @Transactional
@@ -15,6 +19,9 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    TeamRepository teamRepository;
 
     @Test
     void save() {
@@ -58,7 +65,7 @@ class MemberRepositoryTest {
     @Test
     public void findByUsernameAndAgeGreaterThen () throws Exception {
         Member m1 = new Member("AAA", 10);
-        Member m2 = new Member("AAA", 20);
+        Member m2 = new Member("BBB", 20);
         memberRepository.save(m1);
         memberRepository.save(m2);
 
@@ -70,7 +77,7 @@ class MemberRepositoryTest {
     @Test
     public void testNamedQuery () throws Exception {
         Member m1 = new Member("AAA", 10);
-        Member m2 = new Member("AAA", 20);
+        Member m2 = new Member("BBB", 20);
         memberRepository.save(m1);
         memberRepository.save(m2);
 
@@ -82,13 +89,74 @@ class MemberRepositoryTest {
     @Test
     public void testQuery () throws Exception {
         Member m1 = new Member("AAA", 10);
-        Member m2 = new Member("AAA", 20);
+        Member m2 = new Member("BBB", 20);
         memberRepository.save(m1);
         memberRepository.save(m2);
 
         List<Member> result = memberRepository.findUser("AAA",10);
 
         Assertions.assertThat(result.get(0)).isEqualTo(m1);
+    }
+
+    @Test
+    public void testUsernameList () throws Exception {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<String> result = memberRepository.findUsernameList();
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void findMemberDto () throws Exception {
+        Team team = new Team("teamA");
+        teamRepository.save(team);
+
+        Member m1 = new Member("AAA", 10);
+        m1.setTeam(team);
+        memberRepository.save(m1);
+
+        List<MemberDto> findMemberDto = memberRepository.findBMemberDto();
+        for (MemberDto memberDto : findMemberDto) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void testFindByName () throws Exception {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> result = memberRepository.findByNames(Arrays.asList("AAA", "BBB"));
+        for (Member member : result) {
+            System.out.println("member = " + member);
+        }
+    }
+    
+    @Test
+    public void testReturnType () throws Exception {
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        List<Member> result1 = memberRepository.findListByUsername("AAA");
+        for (Member member : result1) {
+            System.out.println("member = " + member);
+        }
+
+        Member result2 = memberRepository.findMemberByUsername("AAA");
+        System.out.println("result2 = " + result2);
+
+        Optional<Member> result3 = memberRepository.findOptionalByUsername("AAA");
+        System.out.println("result3.get() = " + result3.get());
+
     }
 
 }
