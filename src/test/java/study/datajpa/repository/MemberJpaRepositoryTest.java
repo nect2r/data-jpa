@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.domain.Member;
+import study.datajpa.domain.Team;
 
 import java.util.List;
 
@@ -119,4 +120,6 @@ class MemberJpaRepositoryTest {
         //then
         Assertions.assertThat(result).isEqualTo(4);
     }
+    
+
 }

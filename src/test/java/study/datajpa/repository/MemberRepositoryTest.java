@@ -216,4 +216,61 @@ class MemberRepositoryTest {
         Assertions.assertThat(result).isEqualTo(4);
     }
 
+    @Test
+    public void findMemberLazy () throws Exception {
+        //given
+        Team teamA = new Team("teamA");
+
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member memberA = new Member("member1", 10,teamA);
+        Member memberB = new Member("member1", 10,teamB);
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        em.flush();
+        em.clear();
+        //when
+        List<Member> members = memberRepository.findEntityGraphByUsername("member1");
+
+        for (Member member : members) {
+            System.out.println("member = " + member);
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+    }
+
+    @Test
+    public void queryHint () throws Exception {
+        //given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+        Member findMember = memberRepository.findReadOnlyByUsername("member1");
+        findMember.setUsername("member2");
+
+        em.flush();
+
+        //then
+    }
+
+    @Test
+    public void lock () throws Exception {
+        //given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> result = memberRepository.findLockByUsername("member1");
+        //then
+    }
+
+    @Test
+    public void callCustom () throws Exception {
+        List<Member> result = memberRepository.findMemberCustom();
+    }
+
 }
