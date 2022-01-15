@@ -273,4 +273,48 @@ class MemberRepositoryTest {
         List<Member> result = memberRepository.findMemberCustom();
     }
 
+    @Test
+    public void JpaEventBaseEntity () throws Exception {
+        //given
+        Member member = new Member("member1");
+        memberRepository.save(member); //@PrePersist
+
+        Thread.sleep(1000);
+        member.setUsername("member2");
+        em.flush(); //@PreUpdate
+        em.clear();
+        //when
+        Member findMember = memberRepository.findById(member.getId()).get();
+
+        System.out.println("findMember = " + findMember.getCreateDate());
+        System.out.println("findMember = " + findMember.getLastModifiedDate());
+        System.out.println("findMember = " + findMember.getCreateDate());
+        System.out.println("findMember = " + findMember.getLastModifiedBy());
+
+
+        //then
+    }
+
+    @Test
+    public void projections () throws Exception {
+        //given
+        Team teamA = new Team("teamA");
+        teamRepository.save(teamA);
+        Member m1 = new Member("m1", 0,teamA);
+        Member m2 = new Member("m2", 0,teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+        //when
+        List<UsernameOnlyDto> result = memberRepository.findProjectionsByUsername("m1", UsernameOnlyDto.class);
+
+        for (UsernameOnlyDto usernameOnly : result) {
+            System.out.println("usernameOnly = " + usernameOnly.getUsername());
+        }
+
+        //then
+    }
+
 }
